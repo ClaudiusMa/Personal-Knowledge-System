@@ -1,26 +1,18 @@
-# Personal Knowledge Base
+# Personal Knowledge System
 
-A reusable structure for building a private, LLM-maintained knowledge base in Obsidian.
+A reusable structure for building a private, LLM-maintained knowledge system. Works with any markdown-compatible frontend platform.
 
 The core idea is that an LLM should not repeatedly rediscover your knowledge from raw files. Instead, it incrementally maintains a persistent wiki: source pages, concept pages, entity pages, position pages, question pages, an index, and a log. The wiki compounds over time.
 
-This repository contains the public structure only. Your actual knowledge stays private.
+This repository contains the public structure only. Your actual knowledge stays private and will never get accessed by anyone else.
 
 ## Quick Start
 
-Create or `cd` into the folder you want to use as your vault, then run:
+Create or `cd` into the folder you want to use as your knowledge system, then run:
 
 ```sh
 npx github:ClaudiusMa/personal-knowledge-base init
 ```
-
-This initializes the current directory. To initialize a different path instead, pass it as an argument:
-
-```sh
-npx github:ClaudiusMa/personal-knowledge-base init ~/somewhere-else
-```
-
-Then open the vault folder in Obsidian.
 
 ## Privacy Model
 
@@ -61,7 +53,7 @@ The `.gitignore` uses a whitelist approach: ignore everything by default, then e
 │   └── personal-knowledge-base.mjs
 └── schema/
     ├── gitignore.template
-    ├── obsidian/
+    ├── frontend/
     │   ├── app.json
     │   └── graph.json
     ├── workflows/
@@ -91,8 +83,6 @@ wiki/
     ├── positions/
     └── questions/
 ```
-
-The repo root is also the Obsidian vault root. Obsidian sees the private wiki, but git does not track it.
 
 ## Page Types
 
@@ -124,13 +114,13 @@ The long-term goal is a dedicated frontend for *reading* the wiki — built arou
 
 - **Concepts as retrieval tags.** Concept pages stay lean and tag-like (one-line definition, list of inbound sources, a few wikilinks to adjacent concepts). The future frontend will use concepts as the primary retrieval key, so heavy prose makes retrieval noisy.
 - **Related pages → "you might also be interested."** Each source page's `## Related pages` section is the foundation for a recommended-next-read block in the future frontend.
-- **Frontend independence.** Markdown stays plain — avoid Obsidian-specific plugin syntax (Dataview, advanced templating). `[[wikilinks]]` and `![[embeds]]` are kept since they're the link primitive of the system.
-- **Meta-bookkeeping excluded from graph view.** `wiki/main/raw/`, `wiki/main/index.md`, and `wiki/main/log.md` are filtered out of graph rendering — Obsidian today, future frontend the same way.
-- **Generated artifacts excluded from graph and frontend.** `artifact/` holds shareable deliverables built *from* wiki facts (e.g. a roadmap or dashboard app), not knowledge to ingest. It is hidden from the Obsidian UI via `userIgnoreFilters` and must be filtered out of graph rendering — future frontend the same way. The vault treats it like `schema/` and `bin/`: structure, not knowledge.
+- **Frontend independence.** Markdown stays plain — avoid platform-specific plugin syntax (Dataview, advanced templating). `[[wikilinks]]` and `![[embeds]]` are kept since they're the link primitive of the system.
+- **Meta-bookkeeping excluded from graph view.** `wiki/main/raw/`, `wiki/main/index.md`, and `wiki/main/log.md` are filtered out of graph rendering in whatever frontend platform is used.
+- **Generated artifacts excluded from graph and frontend.** `artifact/` holds shareable deliverables built *from* wiki facts (e.g. a roadmap or dashboard app), not knowledge to ingest. It is hidden from the frontend platform UI via ignore filters and must be filtered out of graph rendering. The system treats it like `schema/` and `bin/`: structure, not knowledge.
 
-## Obsidian Defaults
+## Frontend Platform Defaults
 
-The initializer seeds `.obsidian/app.json` with a `userIgnoreFilters` list so that agent-facing structural files do not pollute the Obsidian UI. By default, these paths are excluded from graph view, quick switcher, search, and link autocomplete:
+The initializer seeds frontend configuration files (e.g. `app.json`, `graph.json`) with sensible defaults so that agent-facing structural files do not pollute the frontend UI. By default, these paths are excluded from graph view, search, and navigation:
 
 - `CLAUDE.md`
 - `README.md`
@@ -140,13 +130,13 @@ The initializer seeds `.obsidian/app.json` with a `userIgnoreFilters` list so th
 - `schema/`
 - `bin/`
 
-To edit this list inside Obsidian, go to **Settings → Files and links → Excluded files**. `.obsidian/` is gitignored, so per-vault edits stay local and are never pushed to GitHub. If `.obsidian/app.json` already exists in a vault, the initializer leaves it untouched.
+Frontend configuration is gitignored, so per-instance edits stay local and are never pushed to GitHub. If configuration already exists, the initializer leaves it untouched.
 
-The initializer also seeds a `.obsidian/graph.json` with a default search filter that hides files in `wiki/main/raw/` from graph view. This prevents duplicate nodes appearing in the graph (one for the original file, one for the source page that annotates it). Raw files remain fully searchable, openable, and embeddable — they are only hidden from the visual graph.
+The initializer also seeds a default search filter that hides files in `wiki/main/raw/` from graph view. This prevents duplicate nodes appearing in the graph (one for the original file, one for the source page that annotates it). Raw files remain fully searchable, openable, and embeddable — they are only hidden from the visual graph.
 
 ## Using This With an LLM Agent
 
-Point your LLM agent at the vault and tell it to follow `CLAUDE.md`. The schema is intentionally plain markdown. No Obsidian plugins, databases, vector search, or static-site tooling are required at the start.
+Point your LLM agent at the knowledge system directory and tell it to follow `CLAUDE.md`. The schema is intentionally plain markdown. No plugins, databases, vector search, or static-site tooling are required at the start.
 
 Start with one broad wiki. Add structure only when real friction appears.
 
