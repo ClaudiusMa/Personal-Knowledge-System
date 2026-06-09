@@ -52,10 +52,6 @@ The `.gitignore` uses a whitelist approach: ignore everything by default, then e
 ├── bin/
 │   └── personal-knowledge-system.mjs
 └── schema/
-    ├── gitignore.template
-    ├── frontend/
-    │   ├── app.json
-    │   └── graph.json
     ├── workflows/
     │   └── artifact-sync.js
     └── templates/
@@ -120,7 +116,9 @@ The long-term goal is a dedicated frontend for *reading* the wiki — built arou
 
 ## Frontend Platform Defaults
 
-The initializer seeds frontend configuration files (e.g. `app.json`, `graph.json`) with sensible defaults so that agent-facing structural files do not pollute the frontend UI. By default, these paths are excluded from graph view, search, and navigation:
+The system works with any markdown-compatible frontend (Obsidian, Logseq, etc.). Frontend configuration is not part of the public schema — set it up however you prefer.
+
+The following structural paths should be excluded from your frontend's graph view, search, and navigation so they don't pollute the knowledge graph:
 
 - `CLAUDE.md`
 - `README.md`
@@ -129,10 +127,9 @@ The initializer seeds frontend configuration files (e.g. `app.json`, `graph.json
 - `.gitignore`
 - `schema/`
 - `bin/`
+- `artifact/`
 
-Frontend configuration is gitignored, so per-instance edits stay local and are never pushed to GitHub. If configuration already exists, the initializer leaves it untouched.
-
-The initializer also seeds a default search filter that hides files in `wiki/main/raw/` from graph view. This prevents duplicate nodes appearing in the graph (one for the original file, one for the source page that annotates it). Raw files remain fully searchable, openable, and embeddable — they are only hidden from the visual graph.
+Additionally, hiding `wiki/main/raw/` from graph view prevents duplicate nodes (one for the original file, one for the source page that annotates it). Raw files remain fully searchable, openable, and embeddable — they are only hidden from the visual graph.
 
 ## Using This With an LLM Agent
 

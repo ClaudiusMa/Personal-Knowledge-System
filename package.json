@@ -1,0 +1,17 @@
+{
+  "name": "personal-knowledge-system",
+  "version": "1.0.0",
+  "description": "Reusable structure for a private, LLM-maintained knowledge system",
+  "bin": {
+    "personal-knowledge-system": "bin/personal-knowledge-system.mjs"
+  },
+  "type": "module",
+  "license": "MIT",
+  "files": [
+    "bin/",
+    "schema/",
+    "CLAUDE.md",
+    "README.md",
+    ".gitignore"
+  ]
+}
