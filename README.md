@@ -11,7 +11,7 @@ This repository contains the public structure only. Your actual knowledge stays 
 Create or `cd` into the folder you want to use as your knowledge system, then run:
 
 ```sh
-npx github:ClaudiusMa/personal-knowledge-base init
+npx github:ClaudiusMa/Personal-Knowledge-System init
 ```
 
 ## Privacy Model
@@ -50,7 +50,7 @@ The `.gitignore` uses a whitelist approach: ignore everything by default, then e
 ├── .gitignore
 ├── package.json
 ├── bin/
-│   └── personal-knowledge-base.mjs
+│   └── personal-knowledge-system.mjs
 └── schema/
     ├── gitignore.template
     ├── frontend/
