@@ -127,7 +127,10 @@ function init() {
   }
 
   // 6. Seed .gitignore
-  const giSrc  = join(PKG_ROOT, '.gitignore');
+  let giSrc  = join(PKG_ROOT, '.gitignore');
+  if (!existsSync(giSrc)) {
+    giSrc = join(PKG_ROOT, '.npmignore');
+  }
   const giDest = join(TARGET, '.gitignore');
   if (seedFile(giSrc, giDest)) {
     actions.push('  ✓ Seeded .gitignore');
