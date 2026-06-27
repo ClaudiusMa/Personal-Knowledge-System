@@ -62,7 +62,8 @@ The `.gitignore` uses a whitelist approach: ignore everything by default, then e
         ├── entity.template.md
         ├── concept.template.md
         ├── position.template.md
-        └── question.template.md
+        ├── question.template.md
+        └── project.template.md
 ```
 
 ## What Is Ignored
@@ -74,19 +75,23 @@ wiki/
     ├── log.md
     ├── raw/          # original source files (the source of truth)
     ├── sources/
+    ├── notes/
     ├── entities/
     ├── concepts/
     ├── positions/
-    └── questions/
+    ├── questions/
+    └── projects/     # pointers to external projects (path/repo, never the content)
 ```
 
 ## Page Types
 
 - `source`: an annotation layer for one ingested source. References the original file in `wiki/main/raw/` via the `file:` frontmatter and a `## Source` embed. Contains a factual `## What's in this source` index, the user's `## My take` (dated, updatable), and `## Sparks`. The original file is the source of truth; the source page never duplicates its content.
+- `note`: user-authored content — meeting notes, reading reactions, journals, scratch thoughts. The whole body is the user's voice. Lives at `wiki/main/notes/`.
 - `entity`: a concrete recurring thing
 - `concept`: a neutral idea, term, pattern, or framework
 - `position`: a personal claim or sustained view
 - `question`: an unresolved question being tracked
+- `project`: a pointer to a living, externally-owned repo or folder *outside* the vault. The LLM reads its current state at query time to draw context from work that didn't originate in PKS — but never copies it in or modifies it.
 
 Position pages are intentionally separate from concept pages. Concepts describe ideas. Positions capture what the owner currently believes about those ideas.
 

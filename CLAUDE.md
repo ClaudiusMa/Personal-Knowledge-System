@@ -31,11 +31,12 @@ The private wiki content lives under `wiki/` and is gitignored. Treat every sour
 - `concept`: a descriptive idea, theme, pattern, term, or framework.
 - `position`: an opinionated personal claim or sustained view. Positions link to supporting, conflicting, and related pages.
 - `question`: an unresolved question being tracked.
+- `project`: a living, externally-owned codebase or folder that lives **outside the vault** and is never ingested. A `project` page is a thin pointer + annotation layer — like a `source` page, but aimed outward at something that keeps changing. `repo:`/`path:` frontmatter locate it, `## What's worth reading` names its entry points, and `## How it connects` ties it to wiki pages. The LLM reads from it **live** at query time; it never copies the project's content in and never modifies it. Use it for work that relates to your knowledge but didn't originate in PKS.
 
 Filename conventions:
 
 - **`wiki/main/sources/` and `wiki/main/raw/`**: Title Case with spaces. **No date prefix** — dates live in frontmatter (`published:`, `captured:`). **Short — capture the essence only**, drop em-dash subtitles, drop redundant brand prefixes when context implies them. The source page filename mirrors the source's essence; the raw file keeps the author's framing unless the author's filename is unreadable, in which case rename. Long descriptive titles make the wiki harder to scan and harder to render in a future frontend — keep them tight.
-- **`wiki/main/concepts/`, `entities/`, `positions/`, `questions/`**: lowercase kebab-case. These function as retrieval tags (see the Direction section in `README.md`), so the filename IS the tag.
+- **`wiki/main/concepts/`, `entities/`, `positions/`, `questions/`, `projects/`**: lowercase kebab-case. These function as retrieval tags (see the Direction section in `README.md`), so the filename IS the tag.
 
 Examples:
 
@@ -44,6 +45,7 @@ Examples:
 - `wiki/main/concepts/ai-agents.md`
 - `wiki/main/positions/agents-are-workflow-tools-not-coworkers.md`
 - `wiki/main/questions/what-makes-a-note-worth-promoting.md`
+- `wiki/main/projects/fraud-platform.md`
 
 ## Required Wiki Files
 
@@ -63,6 +65,7 @@ Other operation types may use:
 ```md
 ## [YYYY-MM-DD] query | Topic
 ## [YYYY-MM-DD] lint | Scope
+## [YYYY-MM-DD] connect | Project
 ```
 
 ## Workflows
@@ -73,6 +76,7 @@ Every substantive user message falls into one of these categories. **Identify th
 | --- | --- | --- |
 | A new externally-authored file in `wiki/main/raw/` (PDF, formal doc, paper, brief), or explicit "ingest this source" | ingest | [Ingest Workflow](#ingest-workflow) |
 | A user-authored file or content drop (meeting notes, reading reaction, journal, scratch thought, self-written explainer) | note | [Note Workflow](#note-workflow) |
+| "Connect/link project X" — point the system at a living repo or folder that lives outside the vault | connect-project | [Connect Project Workflow](#connect-project-workflow) |
 | Any question, advice request, planning, recommendation, opinion, or "what should I do" prompt | query | [Query Workflow](#query-workflow) |
 | "Lint the wiki" / "check for stale pages" / suggested every 10 ingests | lint | [Lint Workflow](#lint-workflow) |
 | "Sync artifact X" / "update/refresh artifact X with new knowledge" | artifact-sync | [Artifact Sync Workflow](#artifact-sync-workflow) |
@@ -104,15 +108,15 @@ When ingesting a source:
 1. Read `wiki/main/index.md` first.
 2. Read related pages suggested by the index.
 3. Read the new source.
-4. Identify likely related entities, concepts, positions, questions, and past sources.
-5. Link to relevant existing pages (entities, concepts, positions, questions, past sources) using `[[wikilinks]]` — in the source page's `## Related pages` and inline in `## What's in this source` where natural. Do not analyze the source for contradictions or tensions with existing wiki content; that audit lives in the Lint Workflow.
+4. Identify likely related entities, concepts, positions, questions, past sources, and connected projects.
+5. Link to relevant existing pages (entities, concepts, positions, questions, past sources, projects) using `[[wikilinks]]` — in the source page's `## Related pages` and inline in `## What's in this source` where natural. If a connected `project` page is relevant and the source's meaning depends on the project's current state, you may read the project live (read-only, within its `## What's worth reading` entry points) to ground the links. Do not analyze the source for contradictions or tensions with existing wiki content; that audit lives in the Lint Workflow.
 6. Keep the original file in `wiki/main/raw/`. Create the source page as an annotation layer:
    - Set the `file:` frontmatter to the path of the original.
    - Add a `## Source` section with `![[../raw/<filename>]]` so the original is embedded/linked from the source page.
    - Populate `## What's in this source` with factual bullets only (sections covered, entities mentioned, scope, format).
    - Do not embed the file's content. Do not delete the file.
 7. **Discuss the source with the user before capturing `My take`.** After the source page is written, ask 1–3 specific, open questions drawn from the source — what stood out, what to push back on, what feels useful, where it overlaps with the user's existing thinking. Don't ask for a monolithic "take" upfront. Let the conversation move; follow up where the user shows interest. When the user articulates a view, mirror it back as a proposed `My take` ("so your take is X — should I write that down?") and only write on confirmation. Capture verbatim with typo-level cleanup only (per the take-protection rule in Core Rules). If the user has no view or wants to skip, leave `_None yet._`. **The discussion is the point; the take is a byproduct.**
-8. Update relevant entity, concept, position, and question pages.
+8. Update relevant entity, concept, position, question, and project pages.
 9. Promote a take only if it has grown beyond one source.
 10. Update `index.md`.
 11. Append `log.md`.
@@ -126,6 +130,7 @@ When ingesting a source:
 - **Concept page** — create when the source explicitly defines it as a domain category (e.g., a named capability area in a competitive audit, a labeled framework, a term the source itself introduces) or when the concept already appears in another source or wiki page. Otherwise mention inline without a stub.
 - **Position page** — create only when the user's `My take` expresses a reusable claim that's likely to apply across multiple sources. Do not pre-emptively create from a source's own claims.
 - **Question page** — create only for the user's own tracked uncertainties. Never create from a source's sub-questions.
+- **Project page** — never auto-created. Create one only on the user's explicit request to connect an external project (see the Connect Project Workflow). A passing mention of an outside repo stays plain text or an inline link, not a project page.
 
 A source page must contain these headings:
 
@@ -173,14 +178,42 @@ For user-authored content (meeting notes, reading reactions, journals, scratch t
 
 Notes are equal-weight with sources during retrieval. The Query Workflow does not deprioritize them. The difference between source and note is **provenance**, not **importance**.
 
+### Connect Project Workflow
+
+For wiring in a living, externally-owned project — a repo or folder that lives **outside the vault** — so the system can draw its *current* context on demand. This is **not** an ingest: nothing is copied in, the project keeps changing, and you create a persistent pointer the LLM follows at runtime.
+
+1. Read `wiki/main/index.md`.
+2. Confirm the project's location: a canonical `repo:` URL and/or a local `path:` on disk. Capture both when available — `path:` is what the LLM reads live; `repo:` is the portable identity and the clickable link.
+3. Read the project **read-only** to build a factual index — top-level structure, what each major dir/file is for, scope, and which entry points are worth reading. Never copy content in; never modify anything in the project.
+4. Create the page at `wiki/main/projects/<name>.md` from `schema/templates/project.template.md`:
+   - Set `repo:` and `path:` frontmatter.
+   - `## What's worth reading`: factual entry points only — which dirs/files matter, what to skip. No prose synthesis (same rule as `## What's in this source`).
+   - `## How it connects`: `[[wikilinks]]` to the concepts, positions, questions, and sources this project feeds or is fed by.
+   - `## Where it lives`: the repo URL and the local path.
+   - `## My take`: leave `_None yet._` unless the user offers a view — no discussion ceremony, but the take-protection rule still applies.
+5. Update relevant entity, concept, position, and question pages to link back to the project where natural.
+6. Update `index.md` under a `## Projects` table (alongside `## Sources` and `## Notes`).
+7. Append `log.md`: `## [YYYY-MM-DD] connect | <Project>`.
+8. Show changed files; run `git status` and confirm the project page and its `path:`/`repo:` pointers stay untracked (they live under `wiki/`).
+
+A project page must contain these headings:
+
+```md
+## How it connects
+## What's worth reading
+## Where it lives
+```
+
+(`## My take` is optional, dated when present.) To **refresh** a connected project, re-read it and update `## What's worth reading` and `## How it connects` in place; the project itself is never edited by PKS.
+
 ### Query Workflow
 
 Follow this sequence before answering. **Do not answer from prior knowledge alone, and do not ask clarifying questions until you have completed steps 1–3.**
 
 1. **Extract key concepts, keywords, and entities from the query.** Restate the user's question in your thinking and list the 2–5 concepts/keywords/entities it touches. This commits you to a frame before retrieval.
 2. **Scan `wiki/main/index.md`** (and `wiki/main/log.md` if the question is time-anchored or about past decisions) for the page whose summary best matches the extracted concepts.
-3. **Read that one source page in full.** The page body holds the substantive content — user stories, named directions, decisions, evidence, in-scope/out-of-scope — that the index summary collapses. Only read additional pages if the question genuinely spans multiple sources (comparison, cross-source synthesis).
-4. **Answer from the wiki.** Ground every specific suggestion, claim, or recommendation in a cited passage. **Do not extrapolate.** If a suggestion can't trace to a wiki page, drop it — do not pad to a "feels right" answer shape (e.g., do not produce three options when only two are grounded). **Tag citations by provenance** — `[[Page Name]] (source)` for source pages and `[[Page Name]] (note)` for notes — so the user can see the weight of the grounding at a glance.
+3. **Read that one source page in full.** The page body holds the substantive content — user stories, named directions, decisions, evidence, in-scope/out-of-scope — that the index summary collapses. Only read additional pages if the question genuinely spans multiple sources (comparison, cross-source synthesis). If a relevant `project` page surfaces and the question needs the project's *current* state — not just your recorded notes about it — follow its `path:` and read or grep the actual files to ground the answer in what's there now. Stay within the entry points named in `## What's worth reading`; read-only, never modify.
+4. **Answer from the wiki.** Ground every specific suggestion, claim, or recommendation in a cited passage. **Do not extrapolate.** If a suggestion can't trace to a wiki page, drop it — do not pad to a "feels right" answer shape (e.g., do not produce three options when only two are grounded). **Tag citations by provenance** — `[[Page Name]] (source)` for source pages, `[[Page Name]] (note)` for notes, and `[[Page Name]] (project)` for project pages (add `, live` when you read the project's current files, e.g. `[[fraud-platform]] (project, live)`) — so the user can see the weight of the grounding at a glance.
 5. If the wiki genuinely doesn't cover what's needed, ask clarifying questions — and explicitly name what you checked first (e.g., "I read `index.md` and the internship brief in full, but neither covers X").
 6. If the answer creates durable synthesis, offer to file it as a concept, position, or question page. Do not file without approval.
 
@@ -199,17 +232,21 @@ Check for:
 - takes ready for promotion
 - inconsistent frontmatter
 - filename or link drift
+- project pages whose `path:` or `repo:` no longer resolves, or whose `## What's worth reading` has drifted from the project's current structure
 
 ### Artifact Sync Workflow
 
 When the user asks to sync/update/refresh an **artifact** with current PKS knowledge, run the dynamic workflow at `schema/workflows/artifact-sync.js` — do not do this reconciliation by hand in one context.
 
-Artifacts are downstream deliverables built FROM the wiki (e.g. a shareable one-pager under `artifact/<name>/`). They carry a HAI-Harness `Human/` layer whose entries each cite a PKS page via a `Source:` line. The workflow reconciles that `Human/` layer against PKS knowledge **added since the last sync** — it is incremental, not a full re-scan:
+Artifacts are downstream deliverables built FROM the wiki (e.g. a shareable one-pager under `artifact/<name>/`). **The artifact's `index.html` is its source of truth** (for that artifact, not the system); some artifacts also carry a populated HAI-Harness `Human/` layer whose entries cite PKS pages via `Source:` lines. The workflow reconciles PKS knowledge **added since the last sync** against the artifact's claims surfaces — `index.html` primary, populated `Human/` as supplement — incremental, not a full re-scan:
 
-- **Scope** (1 Sonnet agent) — reads `Human/` + prior reports ONCE; derives the watermark + reconciled-page ledger; emits a compact claims index; gates the page set by `mode`.
-- **Reconcile** (Sonnet, batched ~4 pages/agent) — diffs each page against the cited `Human/` claims (passed in, not re-read); classifies promotes / resolves / contradicts / drift / adds; self-checks adds/promotes/resolves.
-- **Verify** (Sonnet, one agent per page that produced contradicts/drift only) — adversarially refute those; drop what isn't a real conflict.
-- **Synthesize** (Opus) — write ONE dated report `<artifact>/Human/knowledge-sync-<date>.md`, recording the new watermark + page ledger.
+- **Scope** (1 Sonnet agent, cheap) — grep-first log read (entry headings only, then just the selected increments by line range; never the whole log outside backfill); watermark + **cumulative** page ledger from the latest prior report only; detects which claims surfaces exist; gates by `mode`.
+- **Small delta (≤4 pages — the routine path)** — ONE Sonnet agent reads the claims surfaces + the pages, classifies promotes / resolves / contradicts / drift / adds, self-checks everything (including adversarial self-refute on contradicts/drift), and writes the report. Two agents total.
+- **Large delta / backfill** — **Claims** (1 agent: surfaces → compact claims index) → **Reconcile** (batched ~4 pages/agent, claims passed in) → **Verify** (one agent per page with contradicts/drift; adversarially refute those only) → **Synthesize** (write ONE dated report `<artifact>/Human/knowledge-sync-<date>.md`). All Sonnet.
+
+Relevance is filtered at both ends: Scope skips unrelated increments wholesale, and `adds` must clear a **materiality bar** — the artifact is curated, not a wiki mirror, so an add must fill a gap the artifact's own structure implies or strengthen/update a core claim (topical adjacency is not enough), and carries a `whyMaterial` line. Near-misses surface as one-line entries under "Noted, not proposed" in the report, never as full proposals.
+
+If an artifact has no (or an empty) `Human/` folder, the report still lands at `Human/knowledge-sync-<date>.md` — the folder is created on demand as the proposal inbox. If an artifact has neither an `index.html` nor a populated `Human/`, the run stops without a report (no claims surface to reconcile against).
 
 **Dispatch (before launching):** if a prior `knowledge-sync-*.md` exists, pass `mode: incremental`. If none exists, **ask the user latest-delta vs full-backfill** and pass `mode: latest` or `mode: backfill`. To target a specific change, pass `preselectedPages: [{path,title}]` instead of a mode.
 
@@ -222,9 +259,9 @@ Workflow({
 })
 ```
 
-Cost: routine `incremental` runs are ~60-100k tokens (1-3 new pages); a one-time `backfill` is ~200-400k. All but Synthesize run on Sonnet.
+Cost: routine `incremental` runs are ~20-40k tokens (1-3 new pages, two agents); a one-time `backfill` is ~150-350k. Everything runs on Sonnet.
 
-Strict boundary: the workflow **proposes, never applies**. It writes exactly one report file into the artifact's `Human/`; it never edits the canonical `Human/` files, `Agents/`, or the deliverable. After the human folds the report in, the artifact's own HAI-Harness agent rebuilds the deliverable (separate repo/session). PKS only ever touches the artifact's `Human/` folder.
+Strict boundary: the workflow **proposes, never applies**. It writes exactly one report file into the artifact's `Human/` (creating the folder if needed); it never edits the canonical `Human/` files, `Agents/`, or the deliverable. After the human folds the report in — `index.html` via the artifact's own agent/session, `Human/` files directly — the deliverable is rebuilt/redeployed separately. PKS only ever writes inside the artifact's `Human/` folder.
 
 ## Promotion Rules
 
@@ -265,3 +302,4 @@ Before every commit or status report:
 - URLs are private.
 - `index.md` and `log.md` are private.
 - Source summaries, takes, and page links are private.
+- Project pages — including their local `path:` and `repo:` pointers — are private; they live under `wiki/`.
