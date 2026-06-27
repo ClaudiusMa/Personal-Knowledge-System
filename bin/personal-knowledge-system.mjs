@@ -88,6 +88,7 @@ function init() {
     'wiki/main/positions',
     'wiki/main/questions',
     'wiki/main/notes',
+    'wiki/main/projects',
   ];
 
   for (const dir of wikiDirs) {

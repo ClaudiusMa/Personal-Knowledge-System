@@ -7,6 +7,11 @@ This is the private content catalog for the wiki. Read it before ingesting sourc
 | Page | Type | Date | Summary |
 | --- | --- | --- | --- |
 
+## Notes
+
+| Page | Note type | Date | Summary |
+| --- | --- | --- | --- |
+
 ## Entities
 
 | Page | Kind | Summary |
@@ -25,4 +30,9 @@ This is the private content catalog for the wiki. Read it before ingesting sourc
 ## Questions
 
 | Page | Question | Status |
+| --- | --- | --- |
+
+## Projects
+
+| Page | Connects to | Where |
 | --- | --- | --- |
